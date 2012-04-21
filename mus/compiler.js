@@ -1,3 +1,7 @@
+//************************************************
+// Helper functions
+//************************************************
+
 var endTime = function (time, expr) {
     // Base case
     if(expr.tag === 'note') {
@@ -13,13 +17,15 @@ var endTime = function (time, expr) {
     }
 };
 
+//************************************************
+// Compiler
+//************************************************
 
 var compile = function(musexpr) {
     var noteArray = [];
 
     var getNotes = function(node, start) {
         var nextStart = 0;
-        console.log('-----> Tag: ' + node.tag + ' - start: ' + start);
 
         // Base case
         if(node.tag === 'note') {
@@ -31,7 +37,6 @@ var compile = function(musexpr) {
 
         if(node.tag === 'seq') {
           nextStart = endTime(start, node.left);
-          console.log('----> nextStart: ' + nextStart);
         }
 
         if(node.tag === 'par') {
@@ -50,18 +55,11 @@ var compile = function(musexpr) {
     return noteArray;
 };
 
-var melody_mus_1 =
-    { tag: 'seq',
-      left:
-       { tag: 'par',
-         left: { tag: 'note', pitch: 'c3', dur: 250 },
-         right: { tag: 'note', pitch: 'g4', dur: 500 } },
-      right:
-       { tag: 'par',
-         left: { tag: 'note', pitch: 'd3', dur: 500 },
-         right: { tag: 'note', pitch: 'f4', dur: 250 } } };
+//************************************************
+// "Tests"
+//************************************************
 
-var melody_mus_2 =
+var sequential_melody_input =
     { tag: 'seq',
       left:
        { tag: 'seq',
@@ -72,27 +70,42 @@ var melody_mus_2 =
          left: { tag: 'note', pitch: 'c4', dur: 500 },
          right: { tag: 'note', pitch: 'd4', dur: 500 } } };
 
-var melody_1_expected_notes = [
-    { tag: 'note', pitch: 'c3', start: 0, dur: 250 },
-    { tag: 'note', pitch: 'g4', start: 0, dur: 500 },
-    { tag: 'note', pitch: 'd3', start: 500, dur: 500 },
-    { tag: 'note', pitch: 'f4', start: 500, dur: 250 } ];
+var parallel_melody_input =
+    { tag: 'seq',
+      left:
+       { tag: 'par',
+         left: { tag: 'note', pitch: 'c3', dur: 250 },
+         right: { tag: 'note', pitch: 'g4', dur: 500 } },
+      right:
+       { tag: 'par',
+         left: { tag: 'note', pitch: 'd3', dur: 500 },
+         right: { tag: 'note', pitch: 'f4', dur: 250 } } };
 
-var melody_2_expected_notes = [
-    { tag: 'note', pitch: 'a4', start: 0, dur: 250 },
-    { tag: 'note', pitch: 'b4', start: 250, dur: 250 },
-    { tag: 'note', pitch: 'c3', start: 500, dur: 500 },
-    { tag: 'note', pitch: 'd4', start: 1000, dur: 500 } ];
+var sequential_melody_expected_output = [
+    { tag: 'note', pitch: 'a4', dur: 250, start: 0 },
+    { tag: 'note', pitch: 'b4', dur: 250, start: 250 },
+    { tag: 'note', pitch: 'c4', dur: 500, start: 500 },
+    { tag: 'note', pitch: 'd4', dur: 500, start: 1000 } ];
 
+var parallel_melody_expected_output = [
+    { tag: 'note', pitch: 'c3', dur: 250, start: 0 },
+    { tag: 'note', pitch: 'g4', dur: 500, start: 0 },
+    { tag: 'note', pitch: 'd3', dur: 500, start: 500 },
+    { tag: 'note', pitch: 'f4', dur: 250, start: 500 } ];
 
-notes_1 = compile(melody_mus_1);
-console.log('----> Compiled Notes PARALLEL:');
-console.log(notes_1);
-console.log('----> Goal Notes PARALLEL:');
-console.log(melody_1_expected_notes);
+sequential_melody_output = compile(sequential_melody_input);
+console.log('----> SEQUENTIAL melody output:');
+console.log(sequential_melody_expected_output);
+console.log('');
+console.log('----> SEQUENTIAL melody expected output:');
+console.log(sequential_melody_output);
+console.log('');
+console.log('');
+console.log('');
 
-notes_2 = compile(melody_mus_2);
-console.log('----> Compiled Notes SEQUENTIAL:');
-console.log(notes_2);
-console.log('----> Goal Notes SEQUENTIAL:');
-console.log(melody_2_expected_notes);
+parallel_melody_output = compile(parallel_melody_input);
+console.log('----> PARALLEL melody output:');
+console.log(parallel_melody_output);
+console.log('');
+console.log('----> PARALLEL melody expected output:');
+console.log(parallel_melody_expected_output);
