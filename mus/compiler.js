@@ -17,12 +17,32 @@ var endTime = function (time, expr) {
     }
 };
 
+var convertPitch = function (pitch) {
+  var note = pitch[0];
+  var octave = pitch[1];
+  return 12 + 12 * octave + letterPitch(note);
+}
+
+var letterPitch = function (note_letter) {
+  var note_dictionary =
+      { c  : 0,
+        d  : 2,
+        e  : 4,
+        f  : 5,
+        g  : 7,
+        a  : 9,
+        b  : 11 };
+
+  return note_dictionary[note_letter];
+}
+
 //************************************************
 // Compiler
 //************************************************
 
-var compile = function(musexpr) {
+var compile = function(musexpr, to_midi) {
     var noteArray = [];
+    to_midi = typeof to_midi !== 'undefined' ? to_midi : false;
 
     var getNotes = function(node, start) {
         var nextStart = 0;
@@ -30,6 +50,9 @@ var compile = function(musexpr) {
         // Base case
         if(node.tag === 'note' || node.tag === 'rest') {
             node.start = start;
+            if(to_midi && node.pitch) {
+                node.pitch = convertPitch(node.pitch);
+            }
             start += node.dur;
             noteArray.push(node);
             return noteArray;
@@ -148,3 +171,37 @@ console.log(parallel_melody_output);
 console.log('');
 console.log('----> PARALLEL melody expected output:');
 console.log(parallel_melody_expected_output);
+console.log('');
+console.log('');
+console.log('');
+
+//************************************************
+// "Tests: midi"
+//************************************************
+
+var midi_melody_input =
+    { tag: 'seq',
+      left:
+       { tag: 'par',
+         left: { tag: 'note', pitch: 'c3', dur: 250 },
+         right: { tag: 'note', pitch: 'g4', dur: 500 } },
+      right:
+       { tag: 'par',
+         left: { tag: 'note', pitch: 'd3', dur: 500 },
+         right: { tag: 'note', pitch: 'f4', dur: 250 } } };
+
+var midi_melody_expected_output = [
+    { tag: 'note', pitch: 48, dur: 250, start: 0 },
+    { tag: 'note', pitch: 67, dur: 500, start: 0 },
+    { tag: 'note', pitch: 50, dur: 500, start: 500 },
+    { tag: 'note', pitch: 65, dur: 250, start: 500 } ];
+
+midi_melody_output = compile(midi_melody_input, true);
+console.log('----> MIDI melody output:');
+console.log(midi_melody_output);
+console.log('');
+console.log('----> MIDI melody expected output:');
+console.log(midi_melody_expected_output);
+console.log('');
+console.log('');
+console.log('');
