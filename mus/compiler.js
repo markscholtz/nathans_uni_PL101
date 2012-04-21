@@ -22,7 +22,7 @@ var convert_pitch = function (pitch) {
       octave = pitch[1];
 
   return 12 + 12 * octave + letter_pitch(note);
-}
+};
 
 var letter_pitch = function (note_letter) {
   var _note_dictionary =
@@ -35,19 +35,19 @@ var letter_pitch = function (note_letter) {
         b  : 11 };
 
   return _note_dictionary[note_letter];
-}
+};
 
 //************************************************
 // Compiler
 //************************************************
 
-var compile = function(mus_expression, to_midi) {
+exports.compile = function(mus_expression, to_midi) {
     var _get_notes,
         _note_array = [];
 
     to_midi = typeof to_midi !== 'undefined' ? to_midi : false;
 
-    var _get_notes = function(node, start) {
+    _get_notes = function(node, start) {
         var _nextStart = 0;
 
         // Base case
